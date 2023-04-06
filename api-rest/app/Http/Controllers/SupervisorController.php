@@ -15,6 +15,18 @@ class SupervisorController extends Controller
     }
 
     public function DatosSupervisor(Request $request, employee $supervisor){
-        return $supervisor;
+        // Se verifica que $supervisor sea supervisor
+        $isSupervisor = employee::whereIn('id', function($query) use ($supervisor){
+            $query->select('employee_id')
+                ->from('employees')
+                ->where('employee_id', $supervisor->id);
+        })->exists();
+
+        // Si $supervisor es un supervisor, se muestran sus datos, en caso de que no sea supervisor entonces se retorna un mensaje de error
+        if($isSupervisor){
+            return $supervisor;
+        }else{
+            return response()->json(['error' => 'El empleado no es un supervisor'], 404);
+        }
     }
 }
